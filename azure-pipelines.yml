@@ -1,0 +1,61 @@
+################################################
+# Solutyics CV Creation Backend Build Pipeline #
+################################################
+# This pipeline builds a Docker image for the project and pushes that image to Amazon ECR.
+
+# trigger:
+# - main
+
+stages:
+- stage: Build_Docker_image
+  displayName: Build & Push CV Creation Backend Docker image to AWS ECR
+  jobs:
+  - job: Build_and_Push
+    displayName: Build & Push Docker image
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: Docker@2
+      displayName: Build the image
+      inputs:
+        repository: '$(DOCKER_REPOSITORY_NAME)'
+        command: 'build'
+        Dockerfile: '**/Dockerfile'
+        buildContext: '$(Build.SourcesDirectory)'
+        tags: '$(Build.BuildId)'
+
+    - task: ECRPushImage@1
+      inputs:
+        awsCredentials: 'Solutyics Azure Devops User'
+        regionName: 'eu-north-1'
+        imageSource: 'imagename'
+        sourceImageName: '$(DOCKER_REPOSITORY_NAME)'
+        sourceImageTag: '$(Build.BuildId)'
+        repositoryName: '$(DOCKER_REPOSITORY_NAME)'
+        pushTag: '$(Build.BuildId)'
+        autoCreateRepository: true
+
+- stage: Deploy_Docker_Container
+  displayName: Pull and Deploy the latest image
+  jobs:
+    - job: Pull_and_Deploy
+      displayName: Pull and Deploy Docker image
+      pool:
+        vmimage: ubuntu-latest
+      steps:
+        - task: SSH@0
+          displayName: SSH Chatbot Server
+          inputs:
+            sshEndpoint: 'SC - CV Creation Server'
+            runOptions: 'inline'
+            inline: |
+              echo "Docker ECR: Logging in.."
+              aws ecr get-login-password --region eu-north-1 | sudo docker login --username AWS --password-stdin 739758572536.dkr.ecr.eu-north-1.amazonaws.com/$(DOCKER_REPOSITORY_NAME) > /dev/null 2>&1
+              echo " "
+              echo "Clearing previous cache..."
+              sudo docker system prune --force
+              echo "Pulling image..."
+              sudo docker pull 739758572536.dkr.ecr.eu-north-1.amazonaws.com/$(DOCKER_REPOSITORY_NAME):$(Build.BuildId)
+              sudo docker container rm $(DOCKER_REPOSITORY_NAME) --force
+              sudo docker run -d -p 5000:5000 --name $(DOCKER_REPOSITORY_NAME) 739758572536.dkr.ecr.eu-north-1.amazonaws.com/$(DOCKER_REPOSITORY_NAME):$(Build.BuildId)
+            readyTimeout: '20000'
