@@ -206,7 +206,7 @@ def advice_feedback():
                 "score": score["Eligibility_Score"],
             }
             json_response = json.dumps(
-                response_data, indent=4
+                response_data, indent=5
             )  # indent for readability
 
             return json_response, 200
