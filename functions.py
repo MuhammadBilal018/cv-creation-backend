@@ -79,12 +79,24 @@ def interview_questions(user_input):
     return json_output
 
 def advice(json_text, user_input):
-    sample_feedback = { 
+    sample_feedback = {
         "data": [
             {"strength": ""},
             {"improvement": ""},
             {"suggested_actions": ""},
             {"brief_review": ""},
+            {
+  "suggested_courses": [
+    {
+      "name": "Course Name",
+      "link": "Course Link"
+    },
+    {
+      "name": "Course Name",
+      "link": "Course Link"
+    }
+  ]
+}
         ]
     }
     response = client.chat.completions.create(
@@ -104,6 +116,9 @@ def advice(json_text, user_input):
                     - If there's a significant mismatch:
                         - Provide feedback with specific reasons for the mismatch across skills, experience, etc.
                         - Offer tailored improvement tips for relevant areas (e.g., acquiring certifications, highlighting relevant projects).
+                        - Suggest relevant courses from Coursera and Udemy to improve weak areas.
+                        - Include a brief overall summary of the candidate’s fit for the role.
+
                     - If there's a partial match:
                         - Highlight the candidate's strong matching qualifications.
                         - Recommend specific actions to strengthen weaker areas based on JD requirements (e.g., emphasize quantifiable achievements, tailor CV to specific role).
