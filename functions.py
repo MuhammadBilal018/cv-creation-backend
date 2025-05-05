@@ -79,7 +79,7 @@ def interview_questions(user_input):
     return json_output
 
 def advice(json_text, user_input):
-    sample_feedback = {
+    sample_feedback = { 
         "data": [
             {"strength": ""},
             {"improvement": ""},
