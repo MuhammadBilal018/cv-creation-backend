@@ -1,9 +1,9 @@
 from pymongo import MongoClient
 import json
 
-uri =  "mongodb+srv://Cv-creation:Cv-creation@cluster0.l0udf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+uri = "mongodb+srv://Cv-creation:Cv-creation@cluster0.l0udf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 client = MongoClient(uri)
-db = client["cv-creation"]
+db = client["Cv-creation"]
 collection_users = db["users"]
 collection_cv_data = db["cv-data"]
 
